@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Route, BrowserRouter as Router, Link, Switch, withRouter } from 'react-router-dom';
 import Home from './home/Home';
 import ConfigGeneration from './configGeneration/ConfigGeneration';
+import ConfigModification from './configModification/ConfigModification';
 import { FaHome } from "react-icons/fa";
 import { FaCube } from "react-icons/fa";
 import { IoLogoBuffer } from "react-icons/io";
@@ -40,6 +41,10 @@ class Nav extends React.Component {
     this.props.store.setHomeSelected();
   }
 
+  doSetConfigModificationSelected = () => {
+    this.props.store.setConfigModificationSelected();
+  }
+
   doSetConfigGenerationSelected = () => {
     this.props.store.setConfigGenerationSelected();
   }
@@ -75,12 +80,12 @@ class Nav extends React.Component {
               >
                 Sunburst
               </li>
-              <li
+              {/* <li
                 className={store.isSunburstZoomSelected ? `${styles.chartNavLinks} ${styles.chartNavLinkSelected}` : `${styles.chartNavLinks}`}
                 onClick={this.doSetDisplaySunburstZoom}
               >
                 Zoomable Sunburst
-              </li>
+              </li> */}
               <li
                 className={store.isTreemapSelected ? `${styles.chartNavLinks} ${styles.chartNavLinkSelected}` : `${styles.chartNavLinks}`}
                 onClick={this.doSetDisplayTreemap}
@@ -94,11 +99,20 @@ class Nav extends React.Component {
                 Zoomable Treemap
               </li>*/}
             </ul>}
-
+            <li className={store.isChartCardDisplayed ? `${styles.Nav__item}` : `${styles.Nav__itemPre}`} onClick={this.doSetChartNavClassOff}>
+              <Link
+                className={store.isConfigModificationSelected ? `${styles.Nav__link} ${styles.selected}` : `${styles.Nav__link}`}
+                to="/modification"
+                onClick={this.doSetConfigModificationSelected}
+              >
+                <FaCube style={iconStyle} />
+                Config Modification
+              </Link>
+            </li>
             <li className={store.isChartCardDisplayed ? `${styles.Nav__item}` : `${styles.Nav__itemPre}`} onClick={this.doSetChartNavClassOff}>
               <Link
                 className={store.isConfigGenerationSelected ? `${styles.Nav__link} ${styles.selected}` : `${styles.Nav__link}`}
-                to="/configgeneration"
+                to="/configeneration"
                 onClick={this.doSetConfigGenerationSelected}
               >
                 <IoLogoBuffer style={iconStyle} />
@@ -115,14 +129,14 @@ class Nav extends React.Component {
 export default class App extends React.Component {
   render() {
     let { store } = this.props
-    console.log(store)
     return (
       <Router>
         <div className={styles.fullAppContainer}>
           <Nav />
           <Switch>
             <Route exact path="/" component={Home} />
-            <Route exact path="/configgeneration" component={ConfigGeneration} />
+            <Route exact path="/modification" component={ConfigModification} />
+            <Route exact path="/configeneration" component={ConfigGeneration} />
           </Switch>
         </div>
       </Router>

@@ -258,7 +258,8 @@ class Home extends React.Component {
         .style("visibility", "");
 
       d3.select("#issuerPath")
-        .text('issuerPath: ' + issuerPath)
+        .style("display", "")
+        .text('issuerPath: ' + issuerPath);
 
       var sequenceArray = d.ancestors().reverse();
       sequenceArray.shift(); // remove root node from the array
@@ -374,6 +375,9 @@ class Home extends React.Component {
 
       d3.select("#explanation")
         .style("visibility", "hidden");
+
+      d3.select("#issuerPath")
+        .style("display", "none");
     }
 
     d3.select("#container").on("mouseleave", mouseleave);

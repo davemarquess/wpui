@@ -26,6 +26,14 @@ class Home extends React.Component {
     this.onDropFunction = this.onDropFunction.bind(this);
   }
 
+  componentDidMount() {
+    if (this.props.store.wereChartsEverDrawn) {
+      this.drawChart(this.props.store.beforeRoot);
+      this.drawZoom(this.props.store.beforeRoot);
+      this.drawTreemap(this.props.store.beforeRoot);
+    }
+  }
+
   setRoot(root) {
     this.setState({ root });
   }
@@ -159,6 +167,7 @@ class Home extends React.Component {
       );
     };
     acceptedFiles.forEach(file => reader.readAsText(file));
+    this.props.store.setWereChartsEverDrawn();
   }
 
   drawChart(jsonData) {

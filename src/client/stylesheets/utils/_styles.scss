@@ -1,32 +1,12 @@
 @import '~pretty-checkbox/src/pretty-checkbox.scss';
 @import url('https://fonts.googleapis.com/css?family=Montserrat|Oswald|Roboto|Raleway|Cabin|Nobile|Electrolize|Exo+2|Yantramanav|Ubunto+Mono|Quantico|Anton|Geomanist');
 
-@font-face {
-  font-family: 'geomanistitalic';
-  src: url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.eot');
-  src: url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.eot?#iefix')
-      format('embedded-opentype'),
-    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.woff2')
-      format('woff2'),
-    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.woff')
-      format('woff'),
-    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.ttf')
-      format('truetype'),
-    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.svg#geomanistitalic')
-      format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
 $m: 0; // margin
 
-// $nav-color: rgb(49, 56, 63);
 $nav-color: #1a6bac;
 $bg-color: rgb(242, 242, 242);
 $body-bg-color: #f6f6f6;
-// $text-black: #485563;
 $text-black: #465e69;
-// $text-primary: #e16672;
 $text-primary: #1a6bac;
 
 $body-font: 'Yantramanav', sans-serif;

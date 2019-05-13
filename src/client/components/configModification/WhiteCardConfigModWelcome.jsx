@@ -1,18 +1,22 @@
-import React , {PureComponent}from 'react';
+import React, { PureComponent } from 'react';
 import styles from '../../stylesheets/modules/configModification/configModification.module';
 
 class WhiteCardConfigModWelcome extends PureComponent {
   constructor(props) {
-    super(props)
+    super(props);
   }
 
   render() {
     return (
-      <div className={`${styles.whiteCard} ${styles.welcomeCard}`} id={styles.welcomeMarginConfig}>
+      <div
+        className={`${styles.whiteCard} ${styles.welcomeCard}`}
+        id={styles.welcomeMarginConfig}>
         <div id={styles.welcomeHeaderTabThree}>Modify Webpack.config File</div>
-          <div id={styles.welcomeMessageTabThree}>
-            Please upload your webpack.config file to begin
-          </div>
+        <div id={styles.welcomeMessageTabThree}>
+          Please upload your{' '}
+          <span className={styles.blueHighlight}>webpack.config</span> file to
+          begin
+        </div>
       </div>
     );
   }

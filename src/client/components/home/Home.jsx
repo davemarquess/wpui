@@ -11,7 +11,6 @@ import styles from '../../stylesheets/modules/home/home.module';
 @inject('store')
 @observer
 class Home extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -20,35 +19,36 @@ class Home extends React.Component {
       height: 550,
       listOfConfigs: [],
       isModalDisplayed: false,
-      root: {}
-    }
+      root: {},
+    };
 
     this.setRoot = this.setRoot.bind(this);
     this.onDropFunction = this.onDropFunction.bind(this);
   }
 
   setRoot(root) {
-    this.setState({ root })
+    this.setState({ root });
   }
 
   onDropFunction(acceptedFiles) {
-    let that = this
-    const reader = new FileReader()
-    reader.onabort = () => console.log('file reading was aborted')
-    reader.onerror = () => console.log('file reading has failed')
-    reader.onload = function () {
+    let that = this;
+    const reader = new FileReader();
+    reader.onabort = () => console.log('file reading was aborted');
+    reader.onerror = () => console.log('file reading has failed');
+    reader.onload = function() {
       // Do whatever you want with the file contents
-      let content = reader.result
-      content = content.substr(content.indexOf("{"));
+      let content = reader.result;
+      content = content.substr(content.indexOf('{'));
       // //splits multiple JSON objects if more than one exists in file
       content = content.split(/}[\n\r\s]+{/);
       if (content.length > 1) {
         for (let i = 0; i < content.length; i++) {
-          content[i] = (i > 0) ? "{" : "" + content[i] + (i < content.length - 1) ? "}" : "";
+          content[i] =
+            i > 0 ? '{' : '' + content[i] + (i < content.length - 1) ? '}' : '';
         }
       }
       content = JSON.parse(content[0]);
-      while (!content.hasOwnProperty("builtAt")) {
+      while (!content.hasOwnProperty('builtAt')) {
         content = content.children[0];
       }
       let returnObj = {};
@@ -56,22 +56,25 @@ class Home extends React.Component {
       returnObj.time = content.time;
       returnObj.hash = content.hash;
       returnObj.errors = content.errors;
-      returnObj.size = content.assets.reduce((size, asset) => size + asset.size, 0);
-      returnObj.assets = content.assets.map((asset) => ({
+      returnObj.size = content.assets.reduce(
+        (size, asset) => size + asset.size,
+        0
+      );
+      returnObj.assets = content.assets.map(asset => ({
         name: asset.name,
         chunks: asset.chunks,
         size: asset.size,
       }));
-      returnObj.chunks = content.chunks.map((chunk) => ({
+      returnObj.chunks = content.chunks.map(chunk => ({
         size: chunk.size,
         files: chunk.files,
-        modules: chunk.modules ?
-          chunk.modules.map((module) => ({
-            name: module.name,
-            size: module.size,
-            id: module.id,
-            issuerPath: module.issuerPath
-          }))
+        modules: chunk.modules
+          ? chunk.modules.map(module => ({
+              name: module.name,
+              size: module.size,
+              id: module.id,
+              issuerPath: module.issuerPath,
+            }))
           : [],
       }));
       let Pdata = [];
@@ -86,12 +89,12 @@ class Home extends React.Component {
       for (var k = 0; k < Pdata[i].chunks.length; k++) {
         for (var l = 0; l < Pdata[i].chunks[k].modules.length; l++) {
           sizeStr = Pdata[i].chunks[k].modules[l].size.toString();
-          path = Pdata[i].chunks[k].modules[l].name.replace("./", "");
+          path = Pdata[i].chunks[k].modules[l].name.replace('./', '');
           issuerPath = Pdata[i].chunks[k].modules[l].issuerPath;
           data.push([path, sizeStr, issuerPath]);
         }
 
-        let root = { "name": "root", "children": [] };
+        let root = { name: 'root', children: [] };
         for (let i = 0; i < data.length; i++) {
           let sequence = data[i][0];
 
@@ -100,20 +103,21 @@ class Home extends React.Component {
           }
 
           let size = +data[i][1];
-          if (isNaN(size)) { // e.g. if this is a header row
+          if (isNaN(size)) {
+            // e.g. if this is a header row
             continue;
           }
-          let parts = sequence.split("/");
+          let parts = sequence.split('/');
           let currentNode = root;
           for (let j = 0; j < parts.length; j++) {
-            let children = currentNode["children"];
+            let children = currentNode['children'];
             let nodeName = parts[j];
             let childNode;
             if (j + 1 < parts.length) {
               // Not yet at the end of the sequence; move down the tree.
               var foundChild = false;
               for (var k = 0; k < children.length; k++) {
-                if (children[k]["name"] == nodeName) {
+                if (children[k]['name'] == nodeName) {
                   childNode = children[k];
                   foundChild = true;
                   break;
@@ -121,89 +125,132 @@ class Home extends React.Component {
               }
               // If we don't already have a child node for this branch, create it.
               if (!foundChild) {
-                childNode = { "name": nodeName, "children": [], "issuerPath": issuerPathdata };
+                childNode = {
+                  name: nodeName,
+                  children: [],
+                  issuerPath: issuerPathdata,
+                };
                 children.push(childNode);
               }
               currentNode = childNode;
             } else {
               // Reached the end of the sequence; create a leaf node.
-              childNode = { "name": nodeName, "value": size, "issuerPath": issuerPathdata };
+              childNode = {
+                name: nodeName,
+                value: size,
+                issuerPath: issuerPathdata,
+              };
               children.push(childNode);
             }
           }
         }
-        that.props.store.setBeforeRoot(root)
+        that.props.store.setBeforeRoot(root);
       }
       // console.log(data)
       that.drawChart(that.props.store.beforeRoot);
       that.drawZoom(that.props.store.beforeRoot);
       that.drawTreemap(that.props.store.beforeRoot);
       // that.drawTreemapZoom(that.props.store.beforeRoot);
-      that.doSetDisplaySunburstAndStats(returnObj.size, data.length, returnObj.assets.length, returnObj.chunks.length);
-    }
-    acceptedFiles.forEach(file => reader.readAsText(file))
+      that.doSetDisplaySunburstAndStats(
+        returnObj.size,
+        data.length,
+        returnObj.assets.length,
+        returnObj.chunks.length
+      );
+    };
+    acceptedFiles.forEach(file => reader.readAsText(file));
   }
 
   drawChart(jsonData) {
-
     // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
     var _self = this;
     const b = {
-      w: 40, h: 20, s: 1, t: 5
+      w: 40,
+      h: 20,
+      s: 1,
+      t: 5,
     };
 
-    const radius = (Math.min(this.state.width, this.state.height) / 2) - 10;
+    const radius = Math.min(this.state.width, this.state.height) / 2 - 10;
     const root = d3.hierarchy(jsonData);
     const sunburstLayout = d3.partition();
 
     sunburstLayout.size([2 * Math.PI, radius]);
-    const arc = d3.arc()
-      .startAngle(function (d) { return d.x0 })
-      .endAngle(function (d) { return d.x1 })
-      .innerRadius(function (d) { return d.y0 * 1.5 })
-      .outerRadius(function (d) { return d.y1 * 1.5 });
+    const arc = d3
+      .arc()
+      .startAngle(function(d) {
+        return d.x0;
+      })
+      .endAngle(function(d) {
+        return d.x1;
+      })
+      .innerRadius(function(d) {
+        return d.y0 * 1.5;
+      })
+      .outerRadius(function(d) {
+        return d.y1 * 1.5;
+      });
 
     const initializeBreadcrumbTrail = () => {
       // Add the svg area.
-      var trail = d3.select("#sequence").append("svg:svg")
-        .attr("width", 800)
-        .attr("height", 50)
-        .attr("id", "trail");
+      var trail = d3
+        .select('#sequence')
+        .append('svg:svg')
+        .attr('width', 800)
+        .attr('height', 50)
+        .attr('id', 'trail');
 
       // Add the label at the end, for the percentage.
-      trail.append("svg:text")
-        .attr("id", "endlabel")
-        .style("fill", "#44505d");   //controls the color of the percentage
-    }
+      trail
+        .append('svg:text')
+        .attr('id', 'endlabel')
+        .style('fill', '#44505d'); //controls the color of the percentage
+    };
 
     initializeBreadcrumbTrail();
 
-    root.sum(d => d.value)
-      .sort(function (a, b) { return b.value - a.value; });
+    root
+      .sum(d => d.value)
+      .sort(function(a, b) {
+        return b.value - a.value;
+      });
 
     sunburstLayout(root);
 
-    const main = d3.select('.sunburst')
-      .attr("width", 550)
-      .attr("height", 550)
-      .append("svg:g")
-      .attr("id", "container")
-      .attr("transform", "translate(" + this.state.width / 2 + "," + this.state.height / 2 + ")");
+    const main = d3
+      .select('.sunburst')
+      .attr('width', 550)
+      .attr('height', 550)
+      .append('svg:g')
+      .attr('id', 'container')
+      .attr(
+        'transform',
+        'translate(' + this.state.width / 2 + ',' + this.state.height / 2 + ')'
+      );
 
-    main.append("svg:circle")
-      .attr("r", radius)
-      .style("opacity", 0);
+    main
+      .append('svg:circle')
+      .attr('r', radius)
+      .style('opacity', 0);
 
-    let nodes = sunburstLayout(root).descendants()
-      .filter(function (d) {
-        return (d.x1 - d.x0 > 0.0092); // 0.005 radians = 0.29 degrees
+    let nodes = sunburstLayout(root)
+      .descendants()
+      .filter(function(d) {
+        return d.x1 - d.x0 > 0.0092; // 0.005 radians = 0.29 degrees
       });
 
-    let color = function () {
+    let color = function() {
       let ctr = 0;
-      const hex = ['#8cc4d9', '#64b0cc', '#409dbf', '#337e99', '#265e73', '#193f4d'];
+      const hex = [
+        '#8cc4d9',
+        '#64b0cc',
+        '#409dbf',
+        '#337e99',
+        '#265e73',
+        '#193f4d',
+      ];
 
-      return function () {
+      return function() {
         if (ctr === hex.length - 1) {
           ctr = 0;
           return hex[ctr];
@@ -211,28 +258,34 @@ class Home extends React.Component {
           ctr++;
           return hex[ctr];
         }
-      }
-    }
+      };
+    };
     let loopColors = color();
     let i = 0;
-    const path = main.data([jsonData]).selectAll("path")
+    const path = main
+      .data([jsonData])
+      .selectAll('path')
       .data(nodes)
-      .enter().append("svg:path")
-      .attr("display", function (d) { return d.depth ? null : "none"; })
-      .attr("d", arc)
-      .attr("fill-rule", "evenodd")
-      .style("fill", function (d) { return loopColors() })
-      .style("opacity", 1)
-      .on("mouseover", mouseover);
+      .enter()
+      .append('svg:path')
+      .attr('display', function(d) {
+        return d.depth ? null : 'none';
+      })
+      .attr('d', arc)
+      .attr('fill-rule', 'evenodd')
+      .style('fill', function(d) {
+        return loopColors();
+      })
+      .style('opacity', 1)
+      .on('mouseover', mouseover);
 
     let totalSize = path.datum().value;
 
     function mouseover(d) {
-
-      var percentage = (100 * d.value / totalSize).toPrecision(3);
-      var percentageString = percentage + "%";
+      var percentage = ((100 * d.value) / totalSize).toPrecision(3);
+      var percentageString = percentage + '%';
       if (Number(percentage) < 0.1) {
-        percentageString = "< 0.1%";
+        percentageString = '< 0.1%';
       }
 
       let issuerPathArr = Object.values(d.data.issuerPath);
@@ -242,22 +295,18 @@ class Home extends React.Component {
         issuerPath += issuerPathArr[i] + '  >  ';
       }
 
-      d3.select("#percentage")
-        .text('% of Total: ' + percentageString);
+      d3.select('#percentage').text('% of Total: ' + percentageString);
 
       //ADDED FILE NAME
-      d3.select("#filename")
-        .text(d.data.name);
+      d3.select('#filename').text(d.data.name);
 
       //ADDED FILE SIZE
-      d3.select("#filesize")
-        .text('Size: ' + d.value / 1000 + 'kb');
+      d3.select('#filesize').text('Size: ' + d.value / 1000 + 'kb');
 
-      d3.select("#explanation")
-        .style("visibility", "");
+      d3.select('#explanation').style('visibility', '');
 
-      d3.select("#issuerPath")
-        .style("display", "")
+      d3.select('#issuerPath')
+        .style('display', '')
         .text('issuerPath: ' + issuerPath);
 
       var sequenceArray = d.ancestors().reverse();
@@ -269,40 +318,54 @@ class Home extends React.Component {
         updateBreadcrumbs(trickArray.slice(0, i), percentageString);
       }
       // Fade all the segments.
-      d3.selectAll("#chart").selectAll("path")
-        .style("opacity", 0.3);
+      d3.selectAll('#chart')
+        .selectAll('path')
+        .style('opacity', 0.3);
 
       // Then highlight only those that are an ancestor of the current segment.
-      main.selectAll("path")
-        .filter(function (node) {
-          return (sequenceArray.indexOf(node) >= 0);
+      main
+        .selectAll('path')
+        .filter(function(node) {
+          return sequenceArray.indexOf(node) >= 0;
         })
-        .style("opacity", 1);
+        .style('opacity', 1);
 
       // Update the breadcrumb trail to show the current sequence and percentage.
       function updateBreadcrumbs(nodeArray, percentageString) {
-
         // Data join; key function combines name and depth (= position in sequence).
-        var trail = d3.select("#trail")
-          .selectAll("g")
-          .data(nodeArray, function (d) { return d.data.name + d.depth; });
+        var trail = d3
+          .select('#trail')
+          .selectAll('g')
+          .data(nodeArray, function(d) {
+            return d.data.name + d.depth;
+          });
 
         // Remove exiting nodes.
         trail.exit().remove();
 
         // Add breadcrumb and label for entering nodes.
-        var entering = trail.enter().append("svg:g");
+        var entering = trail.enter().append('svg:g');
 
-        entering.append("svg:polygon")
-          .attr("points", breadcrumbPoints)
-          .style("fill", function (d) { return '#f7aab2'; });
+        entering
+          .append('svg:polygon')
+          .attr('points', breadcrumbPoints)
+          .style('fill', function(d) {
+            return '#8cc4d9';
+          });
 
-        entering.append("svg:text")
-          .attr("x", (b.w + b.t) / 2)
-          .attr("y", b.h / 2)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "start")
-          .text(function (d) { return d.data.name; });
+        entering
+          .append('svg:text')
+          .attr('x', (b.w + b.t) / 2)
+          .attr('y', b.h / 2)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
+          // .style('fill', function(d) {
+          //   return '#fafafa';
+          // })
+          .style('font-weight', '400')
+          .text(function(d) {
+            return d.data.name;
+          });
 
         // Now move and update the percentage at the end.
         var nodeAryFlat = '';
@@ -314,82 +377,87 @@ class Home extends React.Component {
         var nodeAryFlatLength = 0;
         var nodeAryFlatLengthPercentage = 0;
         for (var i = 1; i < nodeArray.length; i++) {
-          nodeAryFlatLength = nodeAryFlatLength + b.w + nodeArray[i - 1].data.name.length * 7.5 + b.t;
-          nodeAryFlatLengthPercentage = nodeAryFlatLength + b.w + nodeArray[i].data.name.length * 7.5 + b.t + 15;
+          nodeAryFlatLength =
+            nodeAryFlatLength +
+            b.w +
+            nodeArray[i - 1].data.name.length * 7.5 +
+            b.t;
+          nodeAryFlatLengthPercentage =
+            nodeAryFlatLength +
+            b.w +
+            nodeArray[i].data.name.length * 7.5 +
+            b.t +
+            15;
         }
 
-        entering.attr("transform", function (d, i) {
+        entering.attr('transform', function(d, i) {
           if (i === 0) {
-            return "translate(0, 0)";
+            return 'translate(0, 0)';
           } else {
-            return "translate(" + nodeAryFlatLength + ", 0)";   //POSITIONING OF WORDS
+            return 'translate(' + nodeAryFlatLength + ', 0)'; //POSITIONING OF WORDS
           }
         });
 
-        d3.select("#trail").select("#endlabel")
-          .attr("x", (nodeAryFlatLengthPercentage))  //CONTROLS WHERE THE PERCENTAGE IS LOCATED
-          .attr("y", b.h / 2)
-          .attr("dy", "0.35em")
-          .attr("text-anchor", "start")
+        d3.select('#trail')
+          .select('#endlabel')
+          .attr('x', nodeAryFlatLengthPercentage) //CONTROLS WHERE THE PERCENTAGE IS LOCATED
+          .attr('y', b.h / 2)
+          .attr('dy', '0.35em')
+          .attr('text-anchor', 'start')
           .text(percentageString);
 
         // Make the breadcrumb trail visible, if it's hidden.
-        d3.select("#trail")
-          .style("visibility", "");
+        d3.select('#trail').style('visibility', '');
       }
 
       // Generate a string that describes the points of a breadcrumb polygon.
       function breadcrumbPoints(d, i) {
         var points = [];
-        points.push("0,0");
-        points.push(b.w + d.data.name.length * 7.5 + ",0");  //CONTROLS THE SHAPE OF THE POLYGON
-        points.push(b.w + d.data.name.length * 7.5 + b.t + "," + (b.h / 2));
-        points.push(b.w + d.data.name.length * 7.5 + "," + b.h);
-        points.push("0," + b.h);
-        if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-          points.push(b.t + "," + (b.h / 2));
+        points.push('0,0');
+        points.push(b.w + d.data.name.length * 7.5 + ',0'); //CONTROLS THE SHAPE OF THE POLYGON
+        points.push(b.w + d.data.name.length * 7.5 + b.t + ',' + b.h / 2);
+        points.push(b.w + d.data.name.length * 7.5 + ',' + b.h);
+        points.push('0,' + b.h);
+        if (i > 0) {
+          // Leftmost breadcrumb; don't include 6th vertex.
+          points.push(b.t + ',' + b.h / 2);
         }
-        return points.join(" ");
+        return points.join(' ');
       }
     }
 
     // Restore everything to full opacity when moving off the visualization.
     const mouseleave = () => {
-
       // Hide the breadcrumb trail
-      d3.select("#trail")
-        .style("visibility", "hidden");
+      d3.select('#trail').style('visibility', 'hidden');
 
       // Deactivate all segments during transition.
       // d3.selectAll("path").on("issuer", null);
 
       // Transition each segment to full opacity and then reactivate it.
-      d3.selectAll("#chart").selectAll("path")
+      d3.selectAll('#chart')
+        .selectAll('path')
         .transition()
         .duration(600)
-        .style("opacity", 1)
-        .on("end", function () {
-          d3.select(this).on("mouseover", mouseover);
+        .style('opacity', 1)
+        .on('end', function() {
+          d3.select(this).on('mouseover', mouseover);
         });
 
-      d3.select("#explanation")
-        .style("visibility", "hidden");
+      d3.select('#explanation').style('visibility', 'hidden');
 
-      d3.select("#issuerPath")
-        .style("display", "none");
-    }
+      d3.select('#issuerPath').style('display', 'none');
+    };
 
-    d3.select("#container").on("mouseleave", mouseleave);
+    d3.select('#container').on('mouseleave', mouseleave);
   }
 
-
   // //////////////////////////////////////////////////////////////////////////////////////////////////
-
 
   drawZoom(jsonData) {
     const width = 550;
     const height = 550;
-    const maxRadius = (Math.min(width, height) / 2) - 5;
+    const maxRadius = Math.min(width, height) / 2 - 5;
 
     const formatNumber = d3.format(',d');
 
@@ -412,7 +480,7 @@ class Home extends React.Component {
       '#193556',
       '#137B80',
       '#144847',
-      '#254E00'
+      '#254E00',
     ];
 
     const mid = [
@@ -425,7 +493,7 @@ class Home extends React.Component {
       '#42A5B3',
       '#0F8C79',
       '#6BBBA1',
-      '#489d82'
+      '#489d82',
     ];
 
     const light = [
@@ -438,7 +506,7 @@ class Home extends React.Component {
       '#33B6D0',
       '#7ABFCC',
       '#C8D7A1',
-      '#489d82'
+      '#489d82',
     ];
 
     const palettes = [light, mid, dark];
@@ -452,13 +520,20 @@ class Home extends React.Component {
 
     const arc = d3
       .arc()
-      .startAngle(function (d) { return x(d.x0) })
-      .endAngle(function (d) { return x(d.x1) })
-      .innerRadius(function (d) { return y(Math.max(0, d.y0)) })
-      .outerRadius(function (d) { return y(Math.max(0, d.y1)) });
+      .startAngle(function(d) {
+        return x(d.x0);
+      })
+      .endAngle(function(d) {
+        return x(d.x1);
+      })
+      .innerRadius(function(d) {
+        return y(Math.max(0, d.y0));
+      })
+      .outerRadius(function(d) {
+        return y(Math.max(0, d.y1));
+      });
 
-
-    const middleArcLine = (d) => {
+    const middleArcLine = d => {
       const halfPi = Math.PI / 2;
       const angles = [x(d.x0) - halfPi, x(d.x1) - halfPi];
       const r = Math.max(0, (y(d.y0) + y(d.y1)) / 2);
@@ -474,7 +549,7 @@ class Home extends React.Component {
       return path.toString();
     };
 
-    const textFits = (d) => {
+    const textFits = d => {
       const CHAR_SPACE = 10;
 
       const deltaAngle = x(d.x1) - x(d.x0);
@@ -487,14 +562,19 @@ class Home extends React.Component {
     const svg = d3
       .select('#zoomContainer')
       .append('svg')
-      .attr('viewBox', `${(-width / 2) - 135} ${-height / 2} ${width + 300} ${height}`)
+      .attr(
+        'viewBox',
+        `${-width / 2 - 135} ${-height / 2} ${width + 300} ${height}`
+      )
       .on('click', () => focusOn()) // Reset zoom on canvas click
       .attr('id', 'viewBox');
 
     const root = d3.hierarchy(jsonData);
-    root.sum(d => d.value)
-      .sort(function (a, b) { return b.value - a.value; });
-
+    root
+      .sum(d => d.value)
+      .sort(function(a, b) {
+        return b.value - a.value;
+      });
 
     const slice = svg.selectAll('g.slice').data(partition(root).descendants());
 
@@ -509,23 +589,32 @@ class Home extends React.Component {
       .style('dominant-baseline', 'middle')
       .style('cursor', 'pointer')
       .style('text-anchor', 'middle')
-      .on('click', (d) => {
+      .on('click', d => {
         d3.event.stopPropagation();
         focusOn(d);
       });
 
     newSlice
       .append('title')
-      .text((d) => d.data.name + '\n' + formatNumber(d.value) + ' bytes' + '\n' + 'Of Total Size: ' +
-        ((d.value / totalSize) * 100).toPrecision(3) + '%');
+      .text(
+        d =>
+          d.data.name +
+          '\n' +
+          formatNumber(d.value) +
+          ' bytes' +
+          '\n' +
+          'Of Total Size: ' +
+          ((d.value / totalSize) * 100).toPrecision(3) +
+          '%'
+      );
 
     newSlice
       .append('path')
       .attr('class', 'main-arc')
       .style('stroke', '#E5E2E0')
       .style('stroke-width', '1px')
-      .style('fill', (d) => color((d.children ? d : d.parent).data.name))
-      .attr("d", (d) => arc(d));
+      .style('fill', d => color((d.children ? d : d.parent).data.name))
+      .attr('d', d => arc(d));
 
     newSlice
       .append('path')
@@ -542,7 +631,7 @@ class Home extends React.Component {
       .append('textPath')
       .attr('startOffset', '50%')
       .attr('xlink:href', (_, i) => `#hiddenArc${i}`)
-      .text((d) => d.data.name);
+      .text(d => d.data.name);
 
     function focusOn(d = { x0: 0, x1: 1, y0: 0, y1: 1 }) {
       // Reset to top-level if no data point specified
@@ -559,7 +648,7 @@ class Home extends React.Component {
           };
         });
 
-      transition.selectAll('path.main-arc').attrTween('d', (d) => () => arc(d));
+      transition.selectAll('path.main-arc').attrTween('d', d => () => arc(d));
 
       transition
         .selectAll('path.hidden-arc')
@@ -575,7 +664,7 @@ class Home extends React.Component {
         svg
           .selectAll('.slice')
           .filter(d => d === elD)
-          .each(function (d) {
+          .each(function(d) {
             if (d.parent) {
               moveStackToFront(d.parent);
             }
@@ -584,22 +673,22 @@ class Home extends React.Component {
     }
   }
 
-
   //////////////////////////////////////////////////////////////////////////////////////////////////
-
 
   drawTreemap(jsonData) {
     var _self = this;
     const b = {
-      w: 50, h: 20, s: 1, t: 5
+      w: 50,
+      h: 20,
+      s: 1,
+      t: 5,
     };
     const root = d3.hierarchy(jsonData);
     const treemapLayout = d3.treemap();
 
-    treemapLayout
-      .size([600, 450]);
+    treemapLayout.size([600, 450]);
 
-    root.sum(function (d) {
+    root.sum(function(d) {
       return d.value;
     });
 
@@ -607,63 +696,60 @@ class Home extends React.Component {
 
     const initializeBreadcrumbTrail = () => {
       // Add the svg area.
-      var trail2 = d3.select("#sequenceTreeMap").append("svg:svg")
-        .attr("width", this.state.width)
-        .attr("height", 50)
-        .attr("id", "trail2");
+      var trail2 = d3
+        .select('#sequenceTreeMap')
+        .append('svg:svg')
+        .attr('width', this.state.width)
+        .attr('height', 50)
+        .attr('id', 'trail2');
 
       // Add the label at the end, for the percentage.
-      trail2.append("svg:text")
-        .attr("id", "endlabel")
-        .style("fill", "#fff");   //controls the color of the percentage
-    }
+      trail2
+        .append('svg:text')
+        .attr('id', 'endlabel')
+        .style('fill', '#fff'); //controls the color of the percentage
+    };
 
     initializeBreadcrumbTrail();
 
-    const nodes = d3.select('#treemap')
+    const nodes = d3
+      .select('#treemap')
       .selectAll('g')
       .data(root.descendants())
       .enter()
       .append('g')
-      .attr('transform', function (d) { return 'translate(' + [d.x0, d.y0] + ')' })
-      .attr("fill", 'rgba(85, 183, 208, 0.2)')
+      .attr('transform', function(d) {
+        return 'translate(' + [d.x0, d.y0] + ')';
+      })
+      .attr('fill', 'rgba(85, 183, 208, 0.2)')
       .on('mouseover', mouseoverTreemap)
       .on('mouseout', mouseoutTreemap);
 
-    nodes
-      .append('title')
-      .text(d => d.data.name + '\n' + d.value + '\n');
+    nodes.append('title').text(d => d.data.name + '\n' + d.value + '\n');
 
     let totalSize = nodes.datum().value;
 
     function mouseoutTreemap(d) {
-      d3.select(d3.event.currentTarget)
-        .attr("fill", 'rgba(85, 183, 208, 0.2)');
+      d3.select(d3.event.currentTarget).attr('fill', 'rgba(85, 183, 208, 0.2)');
 
-      d3.select("#trail2")
-        .style("visibility", "hidden");
+      d3.select('#trail2').style('visibility', 'hidden');
 
-      d3.select('#explanationTree')
-        .style("visibility", "hidden");
+      d3.select('#explanationTree').style('visibility', 'hidden');
     }
     function mouseoverTreemap(d) {
-      let percentage = (100 * d.value / totalSize);
-      let percentageString = "";
+      let percentage = (100 * d.value) / totalSize;
+      let percentageString = '';
       if (percentage < 0.1) {
-        percentageString = "< 0.1%";
+        percentageString = '< 0.1%';
       } else percentageString = percentage.toPrecision(3) + '%';
 
-      d3.select('#percentageTree')
-        .text(percentageString);
+      d3.select('#percentageTree').text(percentageString);
 
-      d3.select('#filesizeTree')
-        .text(`Size: ${d.value / 1000} kb`);
+      d3.select('#filesizeTree').text(`Size: ${d.value / 1000} kb`);
 
-      d3.select('#explanationTree')
-        .style('visibility', '');
+      d3.select('#explanationTree').style('visibility', '');
 
-      d3.select(d3.event.currentTarget)
-        .attr("fill", 'rgba(10, 0, 218, 0.2)');
+      d3.select(d3.event.currentTarget).attr('fill', 'rgba(10, 0, 218, 0.2)');
 
       const ancestorsArray = d.ancestors().reverse();
       ancestorsArray.shift();
@@ -676,35 +762,42 @@ class Home extends React.Component {
 
       const ancestorsNameArray = ancestorsArray.map(el => {
         return el.data.name;
-      })
+      });
 
-      d3.select('#ancestors')
-        .text(ancestorsNameArray.join("/"));
+      d3.select('#ancestors').text(ancestorsNameArray.join('/'));
     }
 
     function updateBreadcrumbs(nodeArray, percentageString) {
-
       // Data join; key function combines name and depth (= position in sequence).
-      var trail = d3.select("#trail2")
-        .selectAll("g")
-        .data(nodeArray, function (d) { return d.data.name + d.depth; });
+      var trail = d3
+        .select('#trail2')
+        .selectAll('g')
+        .data(nodeArray, function(d) {
+          return d.data.name + d.depth;
+        });
 
       // Remove exiting nodes.
       trail.exit().remove();
 
       // Add breadcrumb and label for entering nodes.
-      var entering = trail.enter().append("svg:g");
+      var entering = trail.enter().append('svg:g');
 
-      entering.append("svg:polygon")
-        .attr("points", breadcrumbPoints)
-        .style("fill", function (d) { return '#f7aab2'; });
+      entering
+        .append('svg:polygon')
+        .attr('points', breadcrumbPoints)
+        .style('fill', function(d) {
+          return '#f7aab2';
+        });
 
-      entering.append("svg:text")
-        .attr("x", (b.w + b.t) / 2)
-        .attr("y", b.h / 2)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", "start")
-        .text(function (d) { return d.data.name; });
+      entering
+        .append('svg:text')
+        .attr('x', (b.w + b.t) / 2)
+        .attr('y', b.h / 2)
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'start')
+        .text(function(d) {
+          return d.data.name;
+        });
 
       // Now move and update the percentage at the end.
       var nodeAryFlat = '';
@@ -716,104 +809,129 @@ class Home extends React.Component {
       var nodeAryFlatLength = 0;
       var nodeAryFlatLengthPercentage = 0;
       for (var i = 1; i < nodeArray.length; i++) {
-        nodeAryFlatLength = nodeAryFlatLength + b.w + nodeArray[i - 1].data.name.length * 7.5 + b.t;
-        nodeAryFlatLengthPercentage = nodeAryFlatLength + b.w + nodeArray[i].data.name.length * 7.5 + b.t + 15;
+        nodeAryFlatLength =
+          nodeAryFlatLength +
+          b.w +
+          nodeArray[i - 1].data.name.length * 7.5 +
+          b.t;
+        nodeAryFlatLengthPercentage =
+          nodeAryFlatLength +
+          b.w +
+          nodeArray[i].data.name.length * 7.5 +
+          b.t +
+          15;
       }
 
-      entering.attr("transform", function (d, i) {
+      entering.attr('transform', function(d, i) {
         if (i === 0) {
-          return "translate(0, 0)";
+          return 'translate(0, 0)';
         } else {
-          return "translate(" + nodeAryFlatLength + ", 0)";   //POSITIONING OF WORDS
+          return 'translate(' + nodeAryFlatLength + ', 0)'; //POSITIONING OF WORDS
         }
       });
 
-      d3.select("#trail2").select("#endlabel")
-        .attr("x", (nodeAryFlatLengthPercentage))  //CONTROLS WHERE THE PERCENTAGE IS LOCATED
-        .attr("y", b.h / 2)
-        .attr("dy", "0.35em")
-        .attr("text-anchor", "start")
+      d3.select('#trail2')
+        .select('#endlabel')
+        .attr('x', nodeAryFlatLengthPercentage) //CONTROLS WHERE THE PERCENTAGE IS LOCATED
+        .attr('y', b.h / 2)
+        .attr('dy', '0.35em')
+        .attr('text-anchor', 'start')
         .text(percentageString);
 
       // Make the breadcrumb trail visible, if it's hidden.
-      d3.select("#trail2")
-        .style("visibility", "");
+      d3.select('#trail2').style('visibility', '');
     }
 
     // Generate a string that describes the points of a breadcrumb polygon.
     function breadcrumbPoints(d, i) {
       var points = [];
-      points.push("0,0");
-      points.push(b.w + d.data.name.length * 7.5 + ",0");  //CONTROLS THE SHAPE OF THE POLYGON
-      points.push(b.w + d.data.name.length * 7.5 + b.t + "," + (b.h / 2));
-      points.push(b.w + d.data.name.length * 7.5 + "," + b.h);
-      points.push("0," + b.h);
-      if (i > 0) { // Leftmost breadcrumb; don't include 6th vertex.
-        points.push(b.t + "," + (b.h / 2));
+      points.push('0,0');
+      points.push(b.w + d.data.name.length * 7.5 + ',0'); //CONTROLS THE SHAPE OF THE POLYGON
+      points.push(b.w + d.data.name.length * 7.5 + b.t + ',' + b.h / 2);
+      points.push(b.w + d.data.name.length * 7.5 + ',' + b.h);
+      points.push('0,' + b.h);
+      if (i > 0) {
+        // Leftmost breadcrumb; don't include 6th vertex.
+        points.push(b.t + ',' + b.h / 2);
       }
-      return points.join(" ");
+      return points.join(' ');
     }
 
     nodes
       .append('rect')
-      .attr('width', function (d) { return d.x1 - d.x0; })
-      .attr('height', function (d) { return d.y1 - d.y0; })
+      .attr('width', function(d) {
+        return d.x1 - d.x0;
+      })
+      .attr('height', function(d) {
+        return d.y1 - d.y0;
+      })
       .style('stroke', '#FFFFFF');
 
     treemapLayout.tile(d3.treemapDice);
 
-    d3.select("#treemap").on("mouseleave", mouseoutTreemap);
+    d3.select('#treemap').on('mouseleave', mouseoutTreemap);
   }
 
-
   drawTreemapZoom(jsonData) {
+    const x = d3
+      .scaleLinear()
+      .domain([0, 100])
+      .range([0, 100]);
+    const y = d3
+      .scaleLinear()
+      .domain([0, 100])
+      .range([0, 100]);
 
-    const x = d3.scaleLinear().domain([0, 100]).range([0, 100]);
-    const y = d3.scaleLinear().domain([0, 100]).range([0, 100]);
+    const color = d3.scaleOrdinal().range(
+      d3.schemeDark2.map(function(c) {
+        c = d3.rgb(c);
+        return c;
+      })
+    );
 
-    const color = d3.scaleOrdinal()
-      .range(d3.schemeDark2
-        .map(function (c) {
-          c = d3.rgb(c);
-          return c;
-        })
-      );
-
-    const treemap = d3.treemap()
+    const treemap = d3
+      .treemap()
       .size([100, 100])
       .paddingInner(0)
       .round(false);
 
-    const nodes = d3.hierarchy(jsonData)
-      .sum(function (d) { return d.value ? 1 : 0; });
+    const nodes = d3.hierarchy(jsonData).sum(function(d) {
+      return d.value ? 1 : 0;
+    });
 
     let currentDepth;
 
     treemap(nodes);
 
-    const chart = d3.select("#chartTreeMapZoom");
+    const chart = d3.select('#chartTreeMapZoom');
     const cells = chart
-      .selectAll(".nodeTZ")
+      .selectAll('.nodeTZ')
       .data(nodes.descendants())
       .enter()
-      .append("div")
-      .attr("class", (d) => "nodeTZ level-" + d.depth)
-      .attr("title", (d) => d.data.name ? d.data.name : "null");
+      .append('div')
+      .attr('class', d => 'nodeTZ level-' + d.depth)
+      .attr('title', d => (d.data.name ? d.data.name : 'null'));
 
     cells
-      .style("left", (d) => x(d.x0) + "%")
-      .style("top", (d) => y(d.y0) + "%")
-      .style("width", (d) => x(d.x1) - x(d.x0) + "%")
-      .style("height", (d) => y(d.y1) - y(d.y0) + "%")
-      .style("background-color", (d) => { while (d.depth > 2) d = d.parent; return color(d.data.name) })
-      .on("click", zoom)
-      .append("p")
-      .attr("class", "label")
-      .text(function (d) { return d.data.name ? d.data.name : "---"; });
+      .style('left', d => x(d.x0) + '%')
+      .style('top', d => y(d.y0) + '%')
+      .style('width', d => x(d.x1) - x(d.x0) + '%')
+      .style('height', d => y(d.y1) - y(d.y0) + '%')
+      .style('background-color', d => {
+        while (d.depth > 2) d = d.parent;
+        return color(d.data.name);
+      })
+      .on('click', zoom)
+      .append('p')
+      .attr('class', 'label')
+      .text(function(d) {
+        return d.data.name ? d.data.name : '---';
+      });
 
-    var parent = d3.select(".up")
+    var parent = d3
+      .select('.up')
       .datum(nodes)
-      .on("click", zoom);
+      .on('click', zoom);
 
     function zoom(d) {
       currentDepth = d.depth;
@@ -822,99 +940,108 @@ class Home extends React.Component {
       x.domain([d.x0, d.x1]);
       y.domain([d.y0, d.y1]);
 
-      var t = d3.transition()
+      var t = d3
+        .transition()
         .duration(400)
         .ease(d3.easeCubicOut);
 
       cells
         .transition(t)
-        .style("left", (d) => x(d.x0) + "%")
-        .style("top", (d) => y(d.y0) + "%")
-        .style("width", (d) => x(d.x1) - x(d.x0) + "%")
-        .style("height", (d) => y(d.y1) - y(d.y0) + "%");
+        .style('left', d => x(d.x0) + '%')
+        .style('top', d => y(d.y0) + '%')
+        .style('width', d => x(d.x1) - x(d.x0) + '%')
+        .style('height', d => y(d.y1) - y(d.y0) + '%');
 
       cells // hide this depth and above
-        .filter((d) => d.ancestors())
-        .classed("hide", function (d) { return d.children ? true : false });
+        .filter(d => d.ancestors())
+        .classed('hide', function(d) {
+          return d.children ? true : false;
+        });
 
       cells // show this depth + 1 and below
-        .filter(function (d) { return d.depth > currentDepth; })
-        .classed("hide", false);
+        .filter(function(d) {
+          return d.depth > currentDepth;
+        })
+        .classed('hide', false);
     }
 
     treemap.tile(d3.treemapDice);
   }
 
-  handleDrawChart = (arg) => {
+  handleDrawChart = arg => {
     this.drawChart(arg);
-  }
+  };
 
-  handleDrawTreeMap = (arg) => {
+  handleDrawTreeMap = arg => {
     this.drawTreemap(arg);
-  }
+  };
 
-  doSetBeforeRoot = (root) => {
+  doSetBeforeRoot = root => {
     this.props.store.setBeforeRoot(root);
-  }
+  };
 
   doSetDisplaySunburstAndStats = (size, node, assets, chunks) => {
     this.props.store.setDisplaySunburstAndStats(size, node, assets, chunks);
-
-  }
+  };
 
   doSetDisplaySunburst = () => {
     this.props.store.setDisplaySunburst();
-  }
+  };
 
   doSetDisplaySunburstZoom = () => {
     this.props.store.setDisplaySunburstZoom();
-  }
+  };
   doSetDisplayTreemap = () => {
     this.props.store.setDisplayTreemap();
-  }
+  };
   doSetDisplayTreemapZoom = () => {
     this.props.store.setDisplayTreemapZoom();
-  }
+  };
 
   render() {
     const { store } = this.props;
     return (
       <div className={styles.mainContainerHome}>
-        <div className={!store.isWelcomeCardDisplayed ? `${styles.chartStatsHeadingBoxes}` : `${styles.displayOff}`}>
+        <div
+          className={
+            !store.isWelcomeCardDisplayed
+              ? `${styles.chartStatsHeadingBoxes}`
+              : `${styles.displayOff}`
+          }>
           <div className={styles.boxContainer}>
-
             <HomeHeadingBox
               textContent="Total Size"
               displayDataString={store.totalSizeTemp}
             />
 
-            <div className={styles.boxLine}></div>
+            <div className={styles.boxLine} />
 
             <HomeHeadingBox
               textContent="Chunks"
               displayData={store.totalChunks}
             />
 
-            <div className={styles.boxLine}></div>
+            <div className={styles.boxLine} />
 
             <HomeHeadingBox
               textContent="Modules"
               displayData={store.totalNodes}
             />
 
-            <div className={styles.boxLine}></div>
+            <div className={styles.boxLine} />
 
             <HomeHeadingBox
               textContent="Assets"
               displayData={store.totalAssets}
             />
-
           </div>
         </div>
 
         {store.isWelcomeCardDisplayed && <WhiteCardWelcome />}
 
-        {store.isLoadStatsDisplayed && <WhiteCardStatsJSON onDropFunction={this.onDropFunction} />}
+        {store.isLoadStatsDisplayed && (
+          <WhiteCardStatsJSON onDropFunction={this.onDropFunction} />
+        )}
 
         <D3ChartContainerCard
           isChartCardDisplayed={store.isChartCardDisplayed}

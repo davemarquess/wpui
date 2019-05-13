@@ -369,9 +369,6 @@ class Home extends React.Component {
           .attr('y', b.h / 2)
           .attr('dy', '0.35em')
           .attr('text-anchor', 'start')
-          // .style('fill', function(d) {
-          //   return '#fafafa';
-          // })
           .style('font-weight', '400')
           .text(function(d) {
             return d.data.name;
@@ -709,7 +706,7 @@ class Home extends React.Component {
       var trail2 = d3
         .select('#sequenceTreeMap')
         .append('svg:svg')
-        .attr('width', this.state.width)
+        .attr('width', '100%')
         .attr('height', 50)
         .attr('id', 'trail2');
 
@@ -796,7 +793,7 @@ class Home extends React.Component {
         .append('svg:polygon')
         .attr('points', breadcrumbPoints)
         .style('fill', function(d) {
-          return '#f7aab2';
+          return '#8cc4d9';
         });
 
       entering

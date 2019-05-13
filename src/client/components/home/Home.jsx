@@ -487,7 +487,7 @@ class Home extends React.Component {
     const svg = d3
       .select('#zoomContainer')
       .append('svg')
-      .attr('viewBox', `${(-width / 2) - 100} ${-height / 2} ${width + 200} ${height}`)
+      .attr('viewBox', `${(-width / 2) - 135} ${-height / 2} ${width + 300} ${height}`)
       .on('click', () => focusOn()) // Reset zoom on canvas click
       .attr('id', 'viewBox');
 

@@ -1,10 +1,30 @@
+@import '../../utils/styles';
+
 .dropzone {
-  border : 1px solid grey;
+  // border : 1px solid grey;
+  border: 2px solid lighten(#465e69, 50%);
   width: 200px;
   height: 200px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  border-radius: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: $text-black;
+}
+
+.dropzone:hover {
+  box-shadow: 0px 5px 18px 1px darken($bg-color, 0.3%);
+  color: lighten($text-primary, 5%);
+  & .iconStyle {
+    color: lighten($text-primary, 5%);
+  }
+}
+
+.iconStyle {
+  color: rgb(70, 94, 105);
+  font-size: 35px;
+  margin-bottom: 10;
+  stroke-width: 1.5;
 }

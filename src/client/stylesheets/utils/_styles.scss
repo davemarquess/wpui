@@ -1,13 +1,33 @@
 @import '~pretty-checkbox/src/pretty-checkbox.scss';
-@import url('https://fonts.googleapis.com/css?family=Montserrat|Oswald|Roboto|Raleway|Cabin|Nobile|Electrolize|Exo+2|Yantramanav|Ubunto+Mono|Quantico|Anton');
+@import url('https://fonts.googleapis.com/css?family=Montserrat|Oswald|Roboto|Raleway|Cabin|Nobile|Electrolize|Exo+2|Yantramanav|Ubunto+Mono|Quantico|Anton|Geomanist');
+
+@font-face {
+  font-family: 'geomanistitalic';
+  src: url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.eot');
+  src: url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.eot?#iefix')
+      format('embedded-opentype'),
+    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.woff2')
+      format('woff2'),
+    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.woff')
+      format('woff'),
+    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.ttf')
+      format('truetype'),
+    url('http://localhost:3000/src/client/stylesheets/utils/Geomanist-Regular-Italic-Webfont/geomanist-regular-italic-webfont.svg#geomanistitalic')
+      format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
 
 $m: 0; // margin
 
-$nav-color: rgb(49, 56, 63);
+// $nav-color: rgb(49, 56, 63);
+$nav-color: #1a6bac;
 $bg-color: rgb(242, 242, 242);
 $body-bg-color: #f6f6f6;
-$text-black: #485563;
-$text-primary: #e16672;
+// $text-black: #485563;
+$text-black: #465e69;
+// $text-primary: #e16672;
+$text-primary: #1a6bac;
 
 $body-font: 'Yantramanav', sans-serif;
 
@@ -20,23 +40,39 @@ $beforeNavLinkHover: rgba(255, 255, 255, 0.6);
 $afterNavLinkHover: rgba(237, 237, 237, 1);
 
 @keyframes onHoverNavItem {
-  0%   { color: $beforeNavHover; }
-  100% { color: $afterNavHover; }
+  0% {
+    color: $beforeNavHover;
+  }
+  100% {
+    color: $afterNavHover;
+  }
 }
 
 @keyframes onHoverNavLink {
-  0%   { color: $beforeNavLinkHover; }
-  100% { color: $afterNavLinkHover; }
+  0% {
+    color: $beforeNavLinkHover;
+  }
+  100% {
+    color: $afterNavLinkHover;
+  }
 }
 
 @keyframes whiteCardFadeIn {
-  0%   { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 @keyframes buttonFadeIn {
-  0%   { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 html {
@@ -72,7 +108,8 @@ a {
   background-color: rgba(250, 250, 250, 1);
   padding: 20px;
   margin: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   width: 90%;
   border-radius: 4px;
   box-shadow: $box-shadow;
@@ -80,6 +117,11 @@ a {
 }
 
 .welcomeCard {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 24px;
+}
+
+.blueHighlight {
+  color: #1a6bac;
 }

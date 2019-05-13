@@ -316,6 +316,7 @@ class Home extends React.Component {
 
       d3.select('#issuerPath')
         .style('display', '')
+        .style('margin-top', '-40px')
         .text('issuerPath: ' + issuerPath);
 
       var sequenceArray = d.ancestors().reverse();

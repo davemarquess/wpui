@@ -1,10 +1,8 @@
 import * as React from 'react';
 import Dropzone from 'react-dropzone'
-import { observer, inject } from 'mobx-react';
+import styles from '../../stylesheets/modules/universals/DropzoneContainer.module';
 
-@inject('store')
-@observer
-export default class StatsDropzone extends React.Component {
+export default class DropzoneContainer extends React.Component {
   constructor(props) {
     super(props)
   }
@@ -15,9 +13,9 @@ export default class StatsDropzone extends React.Component {
       <Dropzone onDrop={this.props.onDropFunction}>
         {({ getRootProps, getInputProps }) => (
           <section>
-            <div {...getRootProps()}>
+            <div {...getRootProps()} style={{'outline': 'none'}}>
               <input {...getInputProps()} />
-              <p>Drag 'n' drop some files here, or click to select files</p>
+              <div className={styles.dropzone}>{this.props.text}</div>
             </div>
           </section>
         )}
